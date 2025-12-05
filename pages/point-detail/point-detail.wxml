@@ -1,0 +1,104 @@
+<!--pages/point-detail/point-detail.wxml-->
+<view class="detail-container">
+  <view class="image-section" wx:if="{{showImages}}">
+    <swiper class="image-swiper" indicator-dots="{{true}}" autoplay="{{true}}" interval="3000">
+      <swiper-item wx:for="{{point.images}}" wx:key="index">
+        <image class="detail-image" src="{{item}}" mode="aspectFill"></image>
+      </swiper-item>
+    </swiper>
+    
+    <view class="image-overlay">
+      <view class="back-btn" bindtap="goBack">
+        <text class="back-icon">←</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="info-section">
+    <view class="point-header">
+      <view class="title-row">
+        <text class="point-title">{{point.name}}</text>
+        <view class="rating-badge">
+          <text class="rating-score">{{point.rating}}</text>
+          <text class="rating-star">⭐</text>
+        </view>
+      </view>
+      
+      <view class="type-badge">
+        <text class="type-text">{{getTypeText(point.buildingForm)}}</text>
+      </view>
+    </view>
+    
+    <view class="address-row">
+      <text class="address-icon">📍</text>
+      <text class="address-text">{{point.address}}</text>
+    </view>
+    
+    <view class="description">
+      <text class="description-text">{{point.description}}</text>
+    </view>
+    
+    <!-- 传统村落详细信息 -->
+    <view class="village-details" wx:if="{{point.county}}">
+      <view class="detail-row">
+        <text class="detail-label">建村年代：</text>
+        <text class="detail-value">{{point.buildYear}}</text>
+      </view>
+      <view class="detail-row">
+        <text class="detail-label">形成原因：</text>
+        <text class="detail-value">{{point.buildReason}}</text>
+      </view>
+      <view class="detail-row">
+        <text class="detail-label">地形地貌：</text>
+        <text class="detail-value">{{point.terrain}}</text>
+      </view>
+      <view class="detail-row">
+        <text class="detail-label">村落规模：</text>
+        <text class="detail-value">{{point.villageScale}}</text>
+      </view>
+      <view class="detail-row" wx:if="{{point.mainSurname}}">
+        <text class="detail-label">主要姓氏：</text>
+        <text class="detail-value">{{point.mainSurname}}</text>
+      </view>
+      <view class="detail-row" wx:if="{{point.historicalBuilding}}">
+        <text class="detail-label">历史建筑：</text>
+        <text class="detail-value">{{point.historicalBuilding}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="details-section">
+    <view class="detail-grid">
+      <view class="detail-item">
+        <text class="detail-label">开放时间</text>
+        <text class="detail-value">{{point.openTime}}</text>
+      </view>
+      
+      <view class="detail-item">
+        <text class="detail-label">联系电话</text>
+        <text class="detail-value">{{point.phone}}</text>
+      </view>
+      
+      <view class="detail-item">
+        <text class="detail-label">访问量</text>
+        <text class="detail-value">{{formatVisitCount(point.visitCount)}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="tags-section">
+    <view class="tags-title">标签</view>
+    <view class="tags-list">
+      <view class="tag-item" wx:for="{{point.tags}}" wx:key="index">
+        <text class="tag-text">{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="image-toggle-section">
+    <view class="toggle-header">
+      <text class="toggle-title">显示图片</text>
+      <switch class="image-toggle" checked="{{showImages}}" bindchange="toggleImages" color="#2E8B57"/>
+    </view>
+  </view>
+</view>

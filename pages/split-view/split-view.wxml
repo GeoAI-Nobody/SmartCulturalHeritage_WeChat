@@ -1,0 +1,88 @@
+<!--pages/split-view/split-view.wxml-->
+<view class="split-view-container">
+  <!-- 上半部分：地图 -->
+  <view class="map-section">
+    <map
+      id="map"
+      class="map"
+      longitude="{{longitude}}"
+      latitude="{{latitude}}"
+      scale="{{scale}}"
+      markers="{{markers}}"
+      bindmarkertap="onMarkerTap"
+      bindtap="onMapTap"
+      enable-overlooking="{{false}}"
+      enable-rotate="{{false}}">
+    </map>
+    
+    <!-- 地点信息面板 -->
+    <view class="info-panel" wx:if="{{selectedPoint}}">
+      <view class="panel-header">
+        <text class="panel-title">地点信息</text>
+        <view class="close-btn" bindtap="closeInfoPanel">
+          <text class="close-icon">×</text>
+        </view>
+      </view>
+      
+      <view class="point-info">
+        <view class="point-header">
+          <text class="point-name">{{selectedPoint.village}}</text>
+          <view class="point-rating" wx:if="{{selectedPoint.rating}}">
+            <text class="rating-score">{{selectedPoint.rating}}</text>
+            <text class="rating-star">⭐</text>
+          </view>
+        </view>
+        <view class="point-type" wx:if="{{selectedPoint.buildingForm}}">
+          <text class="type-text">{{selectedPoint.buildingForm}}</text>
+        </view>
+        <view class="point-address">
+          <text class="address-text">{{selectedPoint.county}} {{selectedPoint.town}} {{selectedPoint.village}}</text>
+        </view>
+        <view class="point-stats" wx:if="{{selectedPoint.foundingYear}}">
+          <text class="visit-count">建村年代: {{selectedPoint.foundingYear}}</text>
+        </view>
+      </view>
+      <view class="action-buttons">
+        <button class="btn-primary" bindtap="viewDetail" data-point="{{selectedPoint}}">查看详情</button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 下半部分：村落列表 -->
+  <view class="list-section">
+    <view class="list-header">
+      <view class="header-top">
+        <text class="list-title">村落列表</text>
+      </view>
+      <view class="list-search">
+        <input class="search-input" placeholder="搜索村落" bindinput="searchPoints" value="{{searchKeyword}}" />
+        <text class="search-icon">🔍</text>
+      </view>
+    </view>
+    
+
+    
+    <scroll-view class="list-content" scroll-y="true">
+      <view class="list-empty" wx:if="{{filteredListPoints.length === 0}}">
+        <text>没有找到匹配的村落</text>
+      </view>
+      <view class="list-item" wx:for="{{filteredListPoints}}" wx:key="index" bindtap="selectListPoint" data-index="{{index}}">
+        <view class="list-item-header">
+          <text class="list-item-name">{{item.village}}</text>
+          <text class="list-item-county">{{item.county}}</text>
+        </view>
+        <view class="list-item-info">
+          <text class="list-item-town">{{item.town}}</text>
+          <text class="list-item-type" wx:if="{{item.buildingForm}}">{{item.buildingForm}}</text>
+        </view>
+      </view>
+    </scroll-view>
+    
+    <view class="list-footer">
+      <text class="list-count">共 {{filteredListPoints.length}} / {{allPoints.length}} 个村落</text>
+    </view>
+  </view>
+  
+
+</view>
+

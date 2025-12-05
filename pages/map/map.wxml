@@ -1,0 +1,129 @@
+<!--pages/map/map.wxml-->
+<view class="map-container">
+  <map
+    id="map"
+    class="map"
+    longitude="{{longitude}}"
+    latitude="{{latitude}}"
+    scale="{{scale}}"
+    markers="{{markers}}"
+    bindmarkertap="onMarkerTap"
+    bindtap="onMapTap"
+    enable-overlooking="{{false}}"
+    enable-rotate="{{false}}">
+  </map>
+  
+  <!-- 筛选菜单按钮 -->
+  <view class="filter-btn {{isMenuOpen ? 'active' : ''}}" bindtap="toggleMenu">
+    <text class="filter-icon">{{isMenuOpen ? '✕' : '≡'}}</text>
+  </view>
+  
+
+  
+  <!-- 可收缩筛选菜单 -->
+  <view class="filter-menu {{isMenuOpen ? 'open' : ''}}">
+    <view class="menu-header">
+      <text class="menu-title">筛选村落</text>
+    </view>
+    
+    <view class="menu-content">
+      <!-- 县区选择 -->
+      <view class="filter-section">
+        <text class="section-title">县区</text>
+        <view class="filter-items">
+          <view class="filter-item {{selectedCounty === '' ? 'active' : ''}}" 
+                bindtap="selectCounty" data-county="">
+            全部
+          </view>
+          <view wx:for="{{countyList}}" wx:key="index"
+                class="filter-item {{selectedCounty === item ? 'active' : ''}}" 
+                bindtap="selectCounty" data-county="{{item}}">
+            {{item}}
+          </view>
+        </view>
+      </view>
+      
+      <!-- 镇选择 -->
+      <view class="filter-section" wx:if="{{selectedCounty}}">
+        <text class="section-title">镇</text>
+        <view class="filter-items">
+          <view class="filter-item {{selectedTown === '' ? 'active' : ''}}" 
+                bindtap="selectTown" data-town="">
+            全部
+          </view>
+          <view wx:for="{{townList}}" wx:key="index"
+                class="filter-item {{selectedTown === item ? 'active' : ''}}" 
+                bindtap="selectTown" data-town="{{item}}">
+            {{item}}
+          </view>
+        </view>
+      </view>
+      
+      <!-- 村选择 -->
+      <view class="filter-section" wx:if="{{selectedTown}}">
+        <text class="section-title">村</text>
+        <view class="filter-items">
+          <view class="filter-item {{selectedVillage === '' ? 'active' : ''}}" 
+                bindtap="selectVillage" data-village="">
+            全部
+          </view>
+          <view wx:for="{{villageList}}" wx:key="index"
+                class="filter-item {{selectedVillage === item ? 'active' : ''}}" 
+                bindtap="selectVillage" data-village="{{item}}">
+            {{item}}
+          </view>
+        </view>
+      </view>
+      
+      <!-- 操作按钮 -->
+      <view class="menu-actions">
+        <button class="btn-reset" bindtap="resetFilter">重置</button>
+        <button class="btn-apply" bindtap="applyFilter">应用筛选</button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 地点信息面板 -->
+  <view class="info-panel" wx:if="{{selectedPoint}}">
+    <view class="panel-header">
+      <text class="panel-title">地点信息</text>
+      <view class="close-btn" bindtap="closeInfoPanel">
+        <text class="close-icon">×</text>
+      </view>
+    </view>
+    
+    <view class="point-info">
+      <view class="point-header">
+        <text class="point-name">{{selectedPoint.village}}</text>
+        <view class="point-rating" wx:if="{{selectedPoint.rating}}">
+          <text class="rating-score">{{selectedPoint.rating}}</text>
+          <text class="rating-star">⭐</text>
+        </view>
+      </view>
+      <view class="point-type" wx:if="{{selectedPoint.buildingForm}}">
+        <text class="type-text">{{selectedPoint.buildingForm}}</text>
+      </view>
+      <view class="point-address">
+        <text class="address-text">{{selectedPoint.county}} {{selectedPoint.town}} {{selectedPoint.village}}</text>
+      </view>
+      <view class="point-stats" wx:if="{{selectedPoint.foundingYear}}">
+        <text class="visit-count">建村年代: {{selectedPoint.foundingYear}}</text>
+      </view>
+    </view>
+    <view class="action-buttons">
+      <button class="btn-primary" bindtap="viewDetail" data-point="{{selectedPoint}}">查看详情</button>
+    </view>
+  </view>
+  
+  <!-- 筛选状态提示 -->
+  <view class="filter-status" wx:if="{{isFiltered}}">
+    <text class="status-text">
+      {{selectedCounty}}{{selectedTown ? ' > ' + selectedTown : ''}}{{selectedVillage ? ' > ' + selectedVillage : ''}}
+    </text>
+    <view class="status-clear" bindtap="resetFilter">
+      <text class="clear-icon">✕</text>
+    </view>
+  </view>
+  
+
+</view>

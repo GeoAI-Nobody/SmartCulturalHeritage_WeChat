@@ -1,0 +1,338 @@
+/* pages/map/map.wxss */
+/* 地图页面的样式文件 */
+
+/* 地图容器样式 - 占据整个屏幕高度 */
+.map-container {
+  position: relative;        /* 相对定位，为内部绝对定位元素提供参考 */
+  width: 100%;              /* 宽度占满父容器 */
+  height: 100vh;            /* 高度占满视口高度 */
+  background-color: #f5f5f5; /* 背景色，浅灰色 */
+}
+
+/* 地图组件样式 */
+.map {
+  width: 100%;              /* 宽度占满容器 */
+  height: 100%;             /* 高度占满容器 */
+}
+
+/* 筛选菜单按钮样式 */
+.filter-btn {
+  position: absolute;
+  top: 30rpx;
+  left: 30rpx;
+  width: 80rpx;
+  height: 80rpx;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
+  z-index: 101;
+  transition: all 0.3s ease;
+}
+
+.filter-btn.active {
+  background-color: #2E8B57;
+}
+
+.filter-icon {
+  font-size: 48rpx;
+  color: #333;
+  font-weight: bold;
+}
+
+.filter-btn.active .filter-icon {
+  color: white;
+}
+
+
+
+/* 筛选菜单样式 */
+.filter-menu {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 70%;
+  height: 100%;
+  background-color: white;
+  box-shadow: 4rpx 0 12rpx rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  transition: left 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-menu.open {
+  left: 0;
+}
+
+/* 菜单头部样式 */
+.menu-header {
+  padding: 40rpx 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  background-color: #f9f9f9;
+}
+
+.menu-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 菜单内容区域样式 */
+.menu-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20rpx;
+}
+
+/* 筛选部分样式 */
+.filter-section {
+  margin-bottom: 30rpx;
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #666;
+  margin-bottom: 15rpx;
+  display: block;
+}
+
+/* 筛选项目容器样式 */
+.filter-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15rpx;
+}
+
+/* 筛选项目样式 */
+.filter-item {
+  padding: 12rpx 20rpx;
+  background-color: #f5f5f5;
+  border-radius: 30rpx;
+  font-size: 24rpx;
+  color: #666;
+  text-align: center;
+}
+
+.filter-item.active {
+  background-color: #2E8B57;
+  color: white;
+}
+
+/* 菜单操作按钮区域样式 */
+.menu-actions {
+  display: flex;
+  gap: 20rpx;
+  padding: 30rpx 20rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.btn-reset {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  border: 1rpx solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  color: #666;
+}
+
+.btn-apply {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2E8B57;
+  color: white;
+}
+
+/* 筛选状态提示样式 */
+.filter-status {
+  position: absolute;
+  top: 30rpx;
+  left: 130rpx;
+  right: 30rpx;
+  background-color: rgba(46, 139, 87, 0.9);
+  border-radius: 40rpx;
+  padding: 15rpx 25rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 99;
+}
+
+.status-text {
+  font-size: 24rpx;
+  color: white;
+  flex: 1;
+}
+
+.status-clear {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 15rpx;
+}
+
+.clear-icon {
+  font-size: 20rpx;
+  color: white;
+}
+
+/* 信息面板样式 - 显示地点详细信息 */
+.info-panel {
+  position: absolute;        /* 绝对定位，相对于map-container定位 */
+  bottom: 20rpx;            /* 距离底部20rpx */
+  left: 20rpx;              /* 距离左边20rpx */
+  right: 20rpx;             /* 距离右边20rpx */
+  background-color: white;   /* 白色背景 */
+  border-radius: 20rpx;     /* 圆角边框 */
+  padding: 0;                /* 内边距设为0，由内部元素控制 */
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.15); /* 阴影效果 */
+  z-index: 50;              /* 层级，确保显示在地图之上 */
+  max-height: 60vh;
+}
+
+/* 面板头部样式 - 包含标题和关闭按钮 */
+.panel-header {
+  display: flex;             /* 弹性布局 */
+  justify-content: space-between; /* 两端对齐 */
+  align-items: center;       /* 垂直居中对齐 */
+  padding: 20rpx 30rpx;     /* 内边距：上下20rpx，左右30rpx */
+  background-color: #2E8B57; /* 绿色背景 */
+  border-radius: 20rpx 20rpx 0 0; /* 只有顶部圆角 */
+}
+
+/* 面板标题样式 */
+.panel-title {
+  font-size: 32rpx;         /* 字体大小 */
+  font-weight: bold;         /* 粗体字 */
+  color: #fff;               /* 白色文字 */
+}
+
+/* 关闭按钮样式 */
+.close-btn {
+  width: 50rpx;              /* 按钮宽度 */
+  height: 50rpx;             /* 按钮高度 */
+  background-color: rgba(255, 255, 255, 0.3); /* 半透明白色背景 */
+  border-radius: 25rpx;      /* 圆角按钮 */
+  display: flex;             /* 弹性布局 */
+  align-items: center;       /* 垂直居中 */
+  justify-content: center;   /* 水平居中 */
+  cursor: pointer;           /* 鼠标指针样式（在Web端有效） */
+}
+
+/* 关闭图标样式 */
+.close-icon {
+  font-size: 32rpx;         /* 图标字体大小 */
+  color: #fff;               /* 图标颜色 */
+  font-weight: bold;         /* 粗体 */
+}
+
+/* 地点信息内容区域样式 */
+.point-info {
+  padding: 20rpx 30rpx;      /* 内边距 */
+}
+
+/* 地点名称和评分行样式 */
+.point-header {
+  display: flex;             /* 弹性布局 */
+  justify-content: space-between; /* 两端对齐 */
+  align-items: center;       /* 垂直居中对齐 */
+  margin-bottom: 15rpx;      /* 底部外边距 */
+}
+
+/* 地点名称样式 */
+.point-name {
+  font-size: 36rpx;         /* 字体大小 */
+  font-weight: bold;         /* 粗体字 */
+  color: #333;               /* 深灰色文字 */
+}
+
+/* 评分显示区域样式 */
+.point-rating {
+  display: flex;             /* 弹性布局 */
+  align-items: center;       /* 垂直居中对齐 */
+  gap: 8rpx;                 /* 元素间距 */
+}
+
+/* 评分数字样式 */
+.rating-score {
+  font-size: 28rpx;         /* 字体大小 */
+  font-weight: bold;         /* 粗体字 */
+  color: #FF6B35;            /* 橙色文字 */
+}
+
+/* 评分星星图标样式 */
+.rating-star {
+  font-size: 24rpx;         /* 图标字体大小 */
+}
+
+/* 地点类型标签区域样式 */
+.point-type {
+  margin-bottom: 15rpx;      /* 底部外边距 */
+}
+
+/* 地点类型文字样式 */
+.type-text {
+  font-size: 24rpx;         /* 字体大小 */
+  color: #2E8B57;            /* 深绿色文字 */
+  background-color: #f0f7f4; /* 浅绿色背景 */
+  padding: 6rpx 15rpx;      /* 内边距 */
+  border-radius: 20rpx;      /* 圆角边框 */
+}
+
+/* 地点地址区域样式 */
+.point-address {
+  margin-bottom: 15rpx;      /* 底部外边距 */
+}
+
+/* 地址文字样式 */
+.address-text {
+  font-size: 26rpx;         /* 字体大小 */
+  color: #666;               /* 中灰色文字 */
+  line-height: 1.4;          /* 行高 */
+}
+
+/* 地点统计信息区域样式 */
+.point-stats {
+  margin-bottom: 15rpx;      /* 底部外边距 */
+}
+
+/* 访问量文字样式 */
+.visit-count {
+  font-size: 24rpx;         /* 字体大小 */
+  color: #999;               /* 浅灰色文字 */
+}
+
+/* 操作按钮区域样式 */
+.action-buttons {
+  padding: 20rpx 30rpx;     /* 内边距 */
+  border-top: 1rpx solid #eee; /* 顶部边框线 */
+}
+
+/* 主要按钮样式 */
+.btn-primary {
+  background-color: #2E8B57; /* 深绿色背景 */
+  color: #fff;               /* 白色文字 */
+  height: 80rpx;             /* 按钮高度 */
+  line-height: 80rpx;        /* 行高 */
+  border-radius: 40rpx;      /* 圆角边框 */
+  font-size: 28rpx;          /* 字体大小 */
+}
+
+

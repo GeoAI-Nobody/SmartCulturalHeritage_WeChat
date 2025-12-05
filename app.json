@@ -1,0 +1,50 @@
+{
+  "pages": [
+    "pages/map/map",
+    "pages/split-view/split-view",
+    "pages/attribute-query/attribute-query",
+    "pages/point-detail/point-detail"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#2E8B57",
+    "navigationBarTitleText": "梅州传统村落地图",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f5f5"
+  },
+  "tabBar": {
+    "color": "#7A7E83",
+    "selectedColor": "#2E8B57",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/map/map",
+        "text": "地图",
+        "iconPath": "images/icons/map.png",
+        "selectedIconPath": "images/icons/map-active.png"
+      },
+      {
+        "pagePath": "pages/split-view/split-view",
+        "text": "分栏视图",
+        "iconPath": "images/icons/split-view.png",
+        "selectedIconPath": "images/icons/split-view-active.png"
+      },
+      {
+        "pagePath": "pages/attribute-query/attribute-query",
+        "text": "属性查询",
+        "iconPath": "images/icons/query.png",
+        "selectedIconPath": "images/icons/query-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "enableShareAppMessage": true,
+  "enableShareTimeline": true,
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的位置信息将用于在地图上显示你的当前位置"
+    }
+  },
+  "sitemapLocation": "sitemap.json"
+}

@@ -1,0 +1,1034 @@
+<!--pages/attribute-query/attribute-query.wxml-->
+<view class="attribute-query-container">
+  <!-- 查询类型选择 -->
+  <view class="query-type-selector">
+    <picker mode="selector" range="{{queryTypeList}}" range-key="label" bindchange="onQueryTypeChange">
+      <view class="type-picker">
+        <text class="picker-label">选择查询条件：</text>
+        <text class="picker-value">{{currentQueryTypeLabel || '请选择查询条件'}}</text>
+        <text class="picker-arrow">▼</text>
+      </view>
+    </picker>
+  </view>
+  
+  <!-- 查询结果列表（可拖动） -->
+  <!-- 这个组件是一个可拖动的结果列表，当有查询结果时显示 -->
+  <!-- showResultList控制是否显示这个列表，resultListHeight控制列表的高度 -->
+  <view class="draggable-result-list" wx:if="{{showResultList}}" style="height: {{resultListHeight}}rpx;">
+    <!-- 拖动手柄，用于上下拖动调整列表高度 -->
+    <view class="drag-handle" bindtouchstart="resultListTouchStart" bindtouchmove="resultListTouchMove">
+      <view class="drag-bar"></view>
+    </view>
+    <!-- 列表标题和关闭按钮 -->
+    <view class="result-list-header">
+      <text class="result-list-title">查询结果 ({{filteredPoints.length}})</text>
+      <view class="close-btn" bindtap="closeResultList">
+        <text class="close-icon">×</text>
+      </view>
+    </view>
+    <!-- 可滚动的结果列表内容 -->
+    <scroll-view class="result-list" scroll-y="true">
+      <!-- 列表项，点击时调用selectResultItem函数并传递点数据 -->
+      <!-- 注意：这里的bindtap="selectResultItem"非常重要，它将列表项点击事件与地图定位和详情显示连接起来 -->
+      <view class="result-item" wx:for="{{filteredPoints}}" wx:key="index" bindtap="selectResultItem" data-point="{{item}}">
+        <view class="result-item-header">
+          <text class="result-item-name">{{item.village}}</text>
+          <text class="result-item-county">{{item.county}}</text>
+        </view>
+        <view class="result-item-info">
+          <text class="result-item-town">{{item.town}}</text>
+          <text class="result-item-type" wx:if="{{item.buildingForm}}">{{item.buildingForm}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+  
+  <!-- 姓氏分布查询 -->
+  <view class="query-content" wx:if="{{queryType === 'surname'}}">
+    <view class="query-selector">
+      <picker mode="selector" range="{{surnameList}}" bindchange="onSurnameChange">
+        <view class="type-picker">
+          <text class="picker-label">选择姓氏：</text>
+          <text class="picker-value">{{selectedSurname || '请选择'}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+    
+    
+    <view class="result-count" wx:if="{{selectedSurname}}">
+      <text class="count-text">共查询到 {{filteredPoints.length}} 个结果</text>
+    </view>
+    
+    <view class="result-map-container" wx:if="{{selectedSurname}}">
+      <map
+        id="result-map"
+        class="result-map"
+        longitude="{{longitude}}"
+        latitude="{{latitude}}"
+        scale="{{scale}}"
+        markers="{{surnameMarkers}}"
+        bindmarkertap="onMarkerTap"
+        bindtap="onMapTap">
+      </map>
+      
+      <!-- 地点信息面板 -->
+      <view class="info-panel" wx:if="{{selectedPoint}}">
+        <view class="panel-header">
+          <text class="panel-title">地点信息</text>
+          <view class="close-btn" bindtap="closeInfoPanel">
+            <text class="close-icon">×</text>
+          </view>
+        </view>
+        
+        <view class="point-info">
+          <view class="point-header">
+            <text class="point-name">{{selectedPoint.village}}</text>
+            <view class="point-rating" wx:if="{{selectedPoint.rating}}">
+              <text class="rating-score">{{selectedPoint.rating}}</text>
+              <text class="rating-star">⭐</text>
+            </view>
+          </view>
+          <view class="point-type" wx:if="{{selectedPoint.buildingForm}}">
+            <text class="type-text">{{selectedPoint.buildingForm}}</text>
+          </view>
+          <view class="point-address">
+            <text class="address-text">{{selectedPoint.county}} {{selectedPoint.town}} {{selectedPoint.village}}</text>
+          </view>
+          <view class="point-stats" wx:if="{{selectedPoint.foundingYear}}">
+            <text class="visit-count">建村年代: {{selectedPoint.foundingYear}}</text>
+          </view>
+        </view>
+        <view class="action-buttons">
+          <button class="btn-primary" bindtap="viewDetail" data-point="{{selectedPoint}}">查看详情</button>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 建村年代查询 -->
+  <view class="query-content" wx:if="{{queryType === 'founding-year'}}">
+    <view class="query-selector">
+      <picker mode="selector" range="{{eraList}}" bindchange="onEraChange">
+        <view class="type-picker">
+          <text class="picker-label">选择年代：</text>
+          <text class="picker-value">{{selectedEraLabel || '请选择'}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+    
+    
+    <view class="result-count" wx:if="{{selectedEra}}">
+      <text class="count-text">共查询到 {{filteredPoints.length}} 个结果</text>
+    </view>
+    
+    <view class="result-map-container" wx:if="{{selectedEra}}">
+      <map
+        id="era-result-map"
+        class="result-map"
+        longitude="{{longitude}}"
+        latitude="{{latitude}}"
+        scale="{{scale}}"
+        markers="{{foundingYearMarkers}}"
+        bindmarkertap="onMarkerTap"
+        bindtap="onMapTap">
+      </map>
+      
+      <!-- 地点信息面板 -->
+      <view class="info-panel" wx:if="{{selectedPoint}}">
+        <view class="panel-header">
+          <text class="panel-title">地点信息</text>
+          <view class="close-btn" bindtap="closeInfoPanel">
+            <text class="close-icon">×</text>
+          </view>
+        </view>
+        
+        <view class="point-info">
+          <view class="point-header">
+            <text class="point-name">{{selectedPoint.village}}</text>
+            <view class="point-rating" wx:if="{{selectedPoint.rating}}">
+              <text class="rating-score">{{selectedPoint.rating}}</text>
+              <text class="rating-star">⭐</text>
+            </view>
+          </view>
+          <view class="point-type" wx:if="{{selectedPoint.buildingForm}}">
+            <text class="type-text">{{selectedPoint.buildingForm}}</text>
+          </view>
+          <view class="point-address">
+            <text class="address-text">{{selectedPoint.county}} {{selectedPoint.town}} {{selectedPoint.village}}</text>
+          </view>
+          <view class="point-stats" wx:if="{{selectedPoint.foundingYear}}">
+            <text class="visit-count">建村年代: {{selectedPoint.foundingYear}}</text>
+          </view>
+        </view>
+        <view class="action-buttons">
+          <button class="btn-primary" bindtap="viewDetail" data-point="{{selectedPoint}}">查看详情</button>
+        </view>
+      </view>
+    </view>
+    
+    <view class="result-list-container" wx:if="{{selectedEra}}">
+      <view class="result-list-header">
+        <text class="result-list-title">{{selectedEraLabel}}村落列表</text>
+      </view>
+      <scroll-view class="result-list" scroll-y="true">
+        <view class="result-item" wx:for="{{filteredPoints}}" wx:key="index" bindtap="viewVillageDetail" data-point="{{item}}">
+          <view class="result-item-header">
+            <text class="result-item-name">{{item.village}}</text>
+            <text class="result-item-county">{{item.county}}</text>
+          </view>
+          <view class="result-item-info">
+            <text class="result-item-town">{{item.town}}</text>
+            <text class="result-item-year">{{item.foundingYear}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="result-list-footer">
+        <text class="result-count-text">共 {{filteredPoints.length}} 个{{selectedEraLabel}}村落</text>
+      </view>
+    </view>
+  </view>
+  
+
+  
+  <!-- 地形地貌查询 -->
+  <view class="query-content" wx:if="{{queryType === 'terrain'}}">
+    <view class="query-selector">
+      <picker mode="selector" range="{{terrainList}}" bindchange="onTerrainChange">
+        <view class="type-picker">
+          <text class="picker-label">选择地形地貌：</text>
+          <text class="picker-value">{{selectedTerrain || '请选择'}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+    
+    
+    <view class="result-count" wx:if="{{selectedTerrain}}">
+      <text class="count-text">共查询到 {{filteredPoints.length}} 个结果</text>
+    </view>
+    
+    <view class="result-map-container" wx:if="{{selectedTerrain}}">
+      <map
+        id="terrain-result-map"
+        class="result-map"
+        longitude="{{longitude}}"
+        latitude="{{latitude}}"
+        scale="{{scale}}"
+        markers="{{terrainMarkers}}"
+        bindmarkertap="onMarkerTap"
+        bindtap="onMapTap">
+      </map>
+      
+      <!-- 地点信息面板 -->
+      <view class="info-panel" wx:if="{{selectedPoint}}">
+        <view class="panel-header">
+          <text class="panel-title">地点信息</text>
+          <view class="close-btn" bindtap="closeInfoPanel">
+            <text class="close-icon">×</text>
+          </view>
+        </view>
+        
+        <view class="point-info">
+          <view class="point-header">
+            <text class="point-name">{{selectedPoint.village}}</text>
+            <view class="point-rating" wx:if="{{selectedPoint.rating}}">
+              <text class="rating-score">{{selectedPoint.rating}}</text>
+              <text class="rating-star">⭐</text>
+            </view>
+          </view>
+          <view class="point-type" wx:if="{{selectedPoint.buildingForm}}">
+            <text class="type-text">{{selectedPoint.buildingForm}}</text>
+          </view>
+          <view class="point-address">
+            <text class="address-text">{{selectedPoint.county}} {{selectedPoint.town}} {{selectedPoint.village}}</text>
+          </view>
+          <view class="point-stats" wx:if="{{selectedPoint.foundingYear}}">
+            <text class="visit-count">建村年代: {{selectedPoint.foundingYear}}</text>
+          </view>
+        </view>
+        <view class="action-buttons">
+          <button class="btn-primary" bindtap="viewDetail" data-point="{{selectedPoint}}">查看详情</button>
+        </view>
+      </view>
+    </view>
+    
+    <view class="result-list-container" wx:if="{{selectedTerrain}}">
+      <view class="result-list-header">
+        <text class="result-list-title">{{selectedTerrain}}地形村落列表</text>
+      </view>
+      <scroll-view class="result-list" scroll-y="true">
+        <view class="result-item" wx:for="{{filteredPoints}}" wx:key="index" bindtap="viewVillageDetail" data-point="{{item}}">
+          <view class="result-item-header">
+            <text class="result-item-name">{{item.village}}</text>
+            <text class="result-item-county">{{item.county}}</text>
+          </view>
+          <view class="result-item-info">
+            <text class="result-item-town">{{item.town}}</text>
+            <text class="result-item-value">{{item.terrain}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="result-list-footer">
+        <text class="result-count-text">共 {{filteredPoints.length}} 个{{selectedTerrain}}地形村落</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 河流宽度查询 -->
+  <view class="query-content" wx:if="{{queryType === 'river-width'}}">
+    <view class="query-selector">
+      <picker mode="selector" range="{{riverWidthList}}" bindchange="onRiverWidthChange">
+        <view class="type-picker">
+          <text class="picker-label">选择河流宽度：</text>
+          <text class="picker-value">{{selectedRiverWidth || '请选择'}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+    
+    
+    <view class="result-count" wx:if="{{selectedRiverWidth}}">
+      <text class="count-text">共查询到 {{filteredPoints.length}} 个结果</text>
+    </view>
+    
+    <view class="result-map-container" wx:if="{{selectedRiverWidth}}">
+      <map
+        id="river-width-result-map"
+        class="result-map"
+        longitude="{{longitude}}"
+        latitude="{{latitude}}"
+        scale="{{scale}}"
+        markers="{{riverWidthMarkers}}"
+        bindmarkertap="onMarkerTap"
+        bindtap="onMapTap">
+      </map>
+      
+      <!-- 地点信息面板 -->
+      <view class="info-panel" wx:if="{{selectedPoint}}">
+        <view class="panel-header">
+          <text class="panel-title">地点信息</text>
+          <view class="close-btn" bindtap="closeInfoPanel">
+            <text class="close-icon">×</text>
+          </view>
+        </view>
+        
+        <view class="point-info">
+          <view class="point-header">
+            <text class="point-name">{{selectedPoint.village}}</text>
+            <view class="point-rating" wx:if="{{selectedPoint.rating}}">
+              <text class="rating-score">{{selectedPoint.rating}}</text>
+              <text class="rating-star">⭐</text>
+            </view>
+          </view>
+          <view class="point-type" wx:if="{{selectedPoint.buildingForm}}">
+            <text class="type-text">{{selectedPoint.buildingForm}}</text>
+          </view>
+          <view class="point-address">
+            <text class="address-text">{{selectedPoint.county}} {{selectedPoint.town}} {{selectedPoint.village}}</text>
+          </view>
+          <view class="point-stats" wx:if="{{selectedPoint.foundingYear}}">
+            <text class="visit-count">建村年代: {{selectedPoint.foundingYear}}</text>
+          </view>
+        </view>
+        <view class="action-buttons">
+          <button class="btn-primary" bindtap="viewDetail" data-point="{{selectedPoint}}">查看详情</button>
+        </view>
+      </view>
+    </view>
+    
+    <view class="result-list-container" wx:if="{{selectedRiverWidth}}">
+      <view class="result-list-header">
+        <text class="result-list-title">{{selectedRiverWidth}}河流村落列表</text>
+      </view>
+      <scroll-view class="result-list" scroll-y="true">
+        <view class="result-item" wx:for="{{filteredPoints}}" wx:key="index" bindtap="viewVillageDetail" data-point="{{item}}">
+          <view class="result-item-header">
+            <text class="result-item-name">{{item.village}}</text>
+            <text class="result-item-county">{{item.county}}</text>
+          </view>
+          <view class="result-item-info">
+            <text class="result-item-town">{{item.town}}</text>
+            <text class="result-item-value">{{item.riverWidth}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="result-list-footer">
+        <text class="result-count-text">共 {{filteredPoints.length}} 个{{selectedRiverWidth}}河流村落</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 道路查询 -->
+  <view class="query-content" wx:if="{{queryType === 'road'}}">
+    <view class="query-selector">
+      <picker mode="selector" range="{{roadList}}" bindchange="onRoadChange">
+        <view class="type-picker">
+          <text class="picker-label">选择道路：</text>
+          <text class="picker-value">{{selectedRoad || '请选择'}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+    
+    
+    <view class="result-count" wx:if="{{selectedRoad}}">
+      <text class="count-text">共查询到 {{filteredPoints.length}} 个结果</text>
+    </view>
+    
+    <view class="result-map-container" wx:if="{{selectedRoad}}">
+      <map
+        id="road-result-map"
+        class="result-map"
+        longitude="{{longitude}}"
+        latitude="{{latitude}}"
+        scale="{{scale}}"
+        markers="{{roadMarkers}}"
+        bindmarkertap="onMarkerTap"
+        bindtap="onMapTap">
+      </map>
+      
+      <!-- 地点信息面板 -->
+      <view class="info-panel" wx:if="{{selectedPoint}}">
+        <view class="panel-header">
+          <text class="panel-title">地点信息</text>
+          <view class="close-btn" bindtap="closeInfoPanel">
+            <text class="close-icon">×</text>
+          </view>
+        </view>
+        
+        <view class="point-info">
+          <view class="point-header">
+            <text class="point-name">{{selectedPoint.village}}</text>
+            <view class="point-rating" wx:if="{{selectedPoint.rating}}">
+              <text class="rating-score">{{selectedPoint.rating}}</text>
+              <text class="rating-star">⭐</text>
+            </view>
+          </view>
+          <view class="point-type" wx:if="{{selectedPoint.buildingForm}}">
+            <text class="type-text">{{selectedPoint.buildingForm}}</text>
+          </view>
+          <view class="point-address">
+            <text class="address-text">{{selectedPoint.county}} {{selectedPoint.town}} {{selectedPoint.village}}</text>
+          </view>
+          <view class="point-stats" wx:if="{{selectedPoint.foundingYear}}">
+            <text class="visit-count">建村年代: {{selectedPoint.foundingYear}}</text>
+          </view>
+        </view>
+        <view class="action-buttons">
+          <button class="btn-primary" bindtap="viewDetail" data-point="{{selectedPoint}}">查看详情</button>
+        </view>
+      </view>
+    </view>
+    
+    <view class="result-list-container" wx:if="{{selectedRoad}}">
+      <view class="result-list-header">
+        <text class="result-list-title">{{selectedRoad}}道路村落列表</text>
+      </view>
+      <scroll-view class="result-list" scroll-y="true">
+        <view class="result-item" wx:for="{{filteredPoints}}" wx:key="index" bindtap="viewVillageDetail" data-point="{{item}}">
+          <view class="result-item-header">
+            <text class="result-item-name">{{item.village}}</text>
+            <text class="result-item-county">{{item.county}}</text>
+          </view>
+          <view class="result-item-info">
+            <text class="result-item-town">{{item.town}}</text>
+            <text class="result-item-value">{{item.roadForm}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="result-list-footer">
+        <text class="result-count-text">共 {{filteredPoints.length}} 个{{selectedRoad}}道路村落</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 流经形式查询 -->
+  <view class="query-content" wx:if="{{queryType === 'flow-form'}}">
+    <view class="query-selector">
+      <picker mode="selector" range="{{flowFormList}}" bindchange="onFlowFormChange">
+        <view class="type-picker">
+          <text class="picker-label">选择流经形式：</text>
+          <text class="picker-value">{{selectedFlowForm || '请选择'}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+    
+    
+    <view class="result-count" wx:if="{{selectedFlowForm}}">
+      <text class="count-text">共查询到 {{filteredPoints.length}} 个结果</text>
+    </view>
+    
+    <view class="result-map-container" wx:if="{{selectedFlowForm}}">
+      <map
+        id="flow-form-result-map"
+        class="result-map"
+        longitude="{{longitude}}"
+        latitude="{{latitude}}"
+        scale="{{scale}}"
+        markers="{{flowFormMarkers}}"
+        bindmarkertap="onMarkerTap"
+        bindtap="onMapTap">
+      </map>
+      
+      <!-- 地点信息面板 -->
+      <view class="info-panel" wx:if="{{selectedPoint}}">
+        <view class="panel-header">
+          <text class="panel-title">地点信息</text>
+          <view class="close-btn" bindtap="closeInfoPanel">
+            <text class="close-icon">×</text>
+          </view>
+        </view>
+        
+        <view class="point-info">
+          <view class="point-header">
+            <text class="point-name">{{selectedPoint.village}}</text>
+            <view class="point-rating" wx:if="{{selectedPoint.rating}}">
+              <text class="rating-score">{{selectedPoint.rating}}</text>
+              <text class="rating-star">⭐</text>
+            </view>
+          </view>
+          <view class="point-type" wx:if="{{selectedPoint.buildingForm}}">
+            <text class="type-text">{{selectedPoint.buildingForm}}</text>
+          </view>
+          <view class="point-address">
+            <text class="address-text">{{selectedPoint.county}} {{selectedPoint.town}} {{selectedPoint.village}}</text>
+          </view>
+          <view class="point-stats" wx:if="{{selectedPoint.foundingYear}}">
+            <text class="visit-count">建村年代: {{selectedPoint.foundingYear}}</text>
+          </view>
+        </view>
+        <view class="action-buttons">
+          <button class="btn-primary" bindtap="viewDetail" data-point="{{selectedPoint}}">查看详情</button>
+        </view>
+      </view>
+    </view>
+    
+    <view class="result-list-container" wx:if="{{selectedFlowForm}}">
+      <view class="result-list-header">
+        <text class="result-list-title">{{selectedFlowForm}}流经村落列表</text>
+      </view>
+      <scroll-view class="result-list" scroll-y="true">
+        <view class="result-item" wx:for="{{filteredPoints}}" wx:key="index" bindtap="viewVillageDetail" data-point="{{item}}">
+          <view class="result-item-header">
+            <text class="result-item-name">{{item.village}}</text>
+            <text class="result-item-county">{{item.county}}</text>
+          </view>
+          <view class="result-item-info">
+            <text class="result-item-town">{{item.town}}</text>
+            <text class="result-item-value">{{item.flowForm}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="result-list-footer">
+        <text class="result-count-text">共 {{filteredPoints.length}} 个{{selectedFlowForm}}流经村落</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 形成原因查询 -->
+  <view class="query-content" wx:if="{{queryType === 'formation-reason'}}">
+    <view class="query-selector">
+      <picker mode="selector" range="{{formationReasonList}}" bindchange="onFormationReasonChange">
+        <view class="type-picker">
+          <text class="picker-label">选择形成原因：</text>
+          <text class="picker-value">{{selectedFormationReason || '请选择'}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+    
+    
+    <view class="result-count" wx:if="{{selectedFormationReason}}">
+      <text class="count-text">共查询到 {{filteredPoints.length}} 个结果</text>
+    </view>
+    
+    <view class="result-map-container" wx:if="{{selectedFormationReason}}">
+      <map
+        id="formation-reason-result-map"
+        class="result-map"
+        longitude="{{longitude}}"
+        latitude="{{latitude}}"
+        scale="{{scale}}"
+        markers="{{formationReasonMarkers}}"
+        bindmarkertap="onMarkerTap"
+        bindtap="onMapTap">
+      </map>
+      
+      <!-- 地点信息面板 -->
+      <view class="info-panel" wx:if="{{selectedPoint}}">
+        <view class="panel-header">
+          <text class="panel-title">地点信息</text>
+          <view class="close-btn" bindtap="closeInfoPanel">
+            <text class="close-icon">×</text>
+          </view>
+        </view>
+        
+        <view class="point-info">
+          <view class="point-header">
+            <text class="point-name">{{selectedPoint.village}}</text>
+            <view class="point-rating" wx:if="{{selectedPoint.rating}}">
+              <text class="rating-score">{{selectedPoint.rating}}</text>
+              <text class="rating-star">⭐</text>
+            </view>
+          </view>
+          <view class="point-type" wx:if="{{selectedPoint.buildingForm}}">
+            <text class="type-text">{{selectedPoint.buildingForm}}</text>
+          </view>
+          <view class="point-address">
+            <text class="address-text">{{selectedPoint.county}} {{selectedPoint.town}} {{selectedPoint.village}}</text>
+          </view>
+          <view class="point-stats" wx:if="{{selectedPoint.foundingYear}}">
+            <text class="visit-count">建村年代: {{selectedPoint.foundingYear}}</text>
+          </view>
+        </view>
+        <view class="action-buttons">
+          <button class="btn-primary" bindtap="viewDetail" data-point="{{selectedPoint}}">查看详情</button>
+        </view>
+      </view>
+    </view>
+    
+    <view class="result-list-container" wx:if="{{selectedFormationReason}}">
+      <view class="result-list-header">
+        <text class="result-list-title">{{selectedFormationReason}}形成村落列表</text>
+      </view>
+      <scroll-view class="result-list" scroll-y="true">
+        <view class="result-item" wx:for="{{filteredPoints}}" wx:key="index" bindtap="viewVillageDetail" data-point="{{item}}">
+          <view class="result-item-header">
+            <text class="result-item-name">{{item.village}}</text>
+            <text class="result-item-county">{{item.county}}</text>
+          </view>
+          <view class="result-item-info">
+            <text class="result-item-town">{{item.town}}</text>
+            <text class="result-item-value">{{item.formationReason}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="result-list-footer">
+        <text class="result-count-text">共 {{filteredPoints.length}} 个{{selectedFormationReason}}形成村落</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 村落规模查询 -->
+  <view class="query-content" wx:if="{{queryType === 'village-scale'}}">
+    <view class="query-selector">
+      <picker mode="selector" range="{{villageScaleList}}" bindchange="onVillageScaleChange">
+        <view class="type-picker">
+          <text class="picker-label">选择村落规模：</text>
+          <text class="picker-value">{{selectedVillageScale || '请选择'}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+    
+    
+    <view class="result-count" wx:if="{{selectedVillageScale}}">
+      <text class="count-text">共查询到 {{filteredPoints.length}} 个结果</text>
+    </view>
+    
+    <view class="result-map-container" wx:if="{{selectedVillageScale}}">
+      <map
+        id="village-scale-result-map"
+        class="result-map"
+        longitude="{{longitude}}"
+        latitude="{{latitude}}"
+        scale="{{scale}}"
+        markers="{{villageScaleMarkers}}"
+        bindmarkertap="onMarkerTap"
+        bindtap="onMapTap">
+      </map>
+      
+      <!-- 地点信息面板 -->
+      <view class="info-panel" wx:if="{{selectedPoint}}">
+        <view class="panel-header">
+          <text class="panel-title">地点信息</text>
+          <view class="close-btn" bindtap="closeInfoPanel">
+            <text class="close-icon">×</text>
+          </view>
+        </view>
+        
+        <view class="point-info">
+          <view class="point-header">
+            <text class="point-name">{{selectedPoint.village}}</text>
+            <view class="point-rating" wx:if="{{selectedPoint.rating}}">
+              <text class="rating-score">{{selectedPoint.rating}}</text>
+              <text class="rating-star">⭐</text>
+            </view>
+          </view>
+          <view class="point-type" wx:if="{{selectedPoint.buildingForm}}">
+            <text class="type-text">{{selectedPoint.buildingForm}}</text>
+          </view>
+          <view class="point-address">
+            <text class="address-text">{{selectedPoint.county}} {{selectedPoint.town}} {{selectedPoint.village}}</text>
+          </view>
+          <view class="point-stats" wx:if="{{selectedPoint.foundingYear}}">
+            <text class="visit-count">建村年代: {{selectedPoint.foundingYear}}</text>
+          </view>
+        </view>
+        <view class="action-buttons">
+          <button class="btn-primary" bindtap="viewDetail" data-point="{{selectedPoint}}">查看详情</button>
+        </view>
+      </view>
+    </view>
+    
+    <view class="result-list-container" wx:if="{{selectedVillageScale}}">
+      <view class="result-list-header">
+        <text class="result-list-title">{{selectedVillageScale}}规模村落列表</text>
+      </view>
+      <scroll-view class="result-list" scroll-y="true">
+        <view class="result-item" wx:for="{{filteredPoints}}" wx:key="index" bindtap="viewVillageDetail" data-point="{{item}}">
+          <view class="result-item-header">
+            <text class="result-item-name">{{item.village}}</text>
+            <text class="result-item-county">{{item.county}}</text>
+          </view>
+          <view class="result-item-info">
+            <text class="result-item-town">{{item.town}}</text>
+            <text class="result-item-value">{{item.villageScale}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="result-list-footer">
+        <text class="result-count-text">共 {{filteredPoints.length}} 个{{selectedVillageScale}}规模村落</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 姓氏结构查询 -->
+  <view class="query-content" wx:if="{{queryType === 'surname-structure'}}">
+    <view class="query-selector">
+      <picker mode="selector" range="{{surnameStructureList}}" bindchange="onSurnameStructureChange">
+        <view class="type-picker">
+          <text class="picker-label">选择姓氏结构：</text>
+          <text class="picker-value">{{selectedSurnameStructure || '请选择'}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+    
+    
+    <view class="result-count" wx:if="{{selectedSurnameStructure}}">
+      <text class="count-text">共查询到 {{filteredPoints.length}} 个结果</text>
+    </view>
+    
+    <view class="result-map-container" wx:if="{{selectedSurnameStructure}}">
+      <map
+        id="surname-structure-result-map"
+        class="result-map"
+        longitude="{{longitude}}"
+        latitude="{{latitude}}"
+        scale="{{scale}}"
+        markers="{{surnameStructureMarkers}}"
+        bindmarkertap="onMarkerTap"
+        bindtap="onMapTap">
+      </map>
+      
+      <!-- 地点信息面板 -->
+      <view class="info-panel" wx:if="{{selectedPoint}}">
+        <view class="panel-header">
+          <text class="panel-title">地点信息</text>
+          <view class="close-btn" bindtap="closeInfoPanel">
+            <text class="close-icon">×</text>
+          </view>
+        </view>
+        
+        <view class="point-info">
+          <view class="point-header">
+            <text class="point-name">{{selectedPoint.village}}</text>
+            <view class="point-rating" wx:if="{{selectedPoint.rating}}">
+              <text class="rating-score">{{selectedPoint.rating}}</text>
+              <text class="rating-star">⭐</text>
+            </view>
+          </view>
+          <view class="point-type" wx:if="{{selectedPoint.buildingForm}}">
+            <text class="type-text">{{selectedPoint.buildingForm}}</text>
+          </view>
+          <view class="point-address">
+            <text class="address-text">{{selectedPoint.county}} {{selectedPoint.town}} {{selectedPoint.village}}</text>
+          </view>
+          <view class="point-stats" wx:if="{{selectedPoint.foundingYear}}">
+            <text class="visit-count">建村年代: {{selectedPoint.foundingYear}}</text>
+          </view>
+        </view>
+        <view class="action-buttons">
+          <button class="btn-primary" bindtap="viewDetail" data-point="{{selectedPoint}}">查看详情</button>
+        </view>
+      </view>
+    </view>
+    
+    <view class="result-list-container" wx:if="{{selectedSurnameStructure}}">
+      <view class="result-list-header">
+        <text class="result-list-title">{{selectedSurnameStructure}}姓氏结构村落列表</text>
+      </view>
+      <scroll-view class="result-list" scroll-y="true">
+        <view class="result-item" wx:for="{{filteredPoints}}" wx:key="index" bindtap="viewVillageDetail" data-point="{{item}}">
+          <view class="result-item-header">
+            <text class="result-item-name">{{item.village}}</text>
+            <text class="result-item-county">{{item.county}}</text>
+          </view>
+          <view class="result-item-info">
+            <text class="result-item-town">{{item.town}}</text>
+            <text class="result-item-value">{{item.surnameStructure}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="result-list-footer">
+        <text class="result-count-text">共 {{filteredPoints.length}} 个{{selectedSurnameStructure}}姓氏结构村落</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 街巷形式查询 -->
+  <view class="query-content" wx:if="{{queryType === 'street-form'}}">
+    <view class="query-selector">
+      <picker mode="selector" range="{{streetFormList}}" bindchange="onStreetFormChange">
+        <view class="type-picker">
+          <text class="picker-label">选择街巷形式：</text>
+          <text class="picker-value">{{selectedStreetForm || '请选择'}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+    
+    
+    <view class="result-count" wx:if="{{selectedStreetForm}}">
+      <text class="count-text">共查询到 {{filteredPoints.length}} 个结果</text>
+    </view>
+    
+    <view class="result-map-container" wx:if="{{selectedStreetForm}}">
+      <map
+        id="street-form-result-map"
+        class="result-map"
+        longitude="{{longitude}}"
+        latitude="{{latitude}}"
+        scale="{{scale}}"
+        markers="{{streetFormMarkers}}"
+        bindmarkertap="onMarkerTap"
+        bindtap="onMapTap">
+      </map>
+      
+      <!-- 地点信息面板 -->
+      <view class="info-panel" wx:if="{{selectedPoint}}">
+        <view class="panel-header">
+          <text class="panel-title">地点信息</text>
+          <view class="close-btn" bindtap="closeInfoPanel">
+            <text class="close-icon">×</text>
+          </view>
+        </view>
+        
+        <view class="point-info">
+          <view class="point-header">
+            <text class="point-name">{{selectedPoint.village}}</text>
+            <view class="point-rating" wx:if="{{selectedPoint.rating}}">
+              <text class="rating-score">{{selectedPoint.rating}}</text>
+              <text class="rating-star">⭐</text>
+            </view>
+          </view>
+          <view class="point-type" wx:if="{{selectedPoint.buildingForm}}">
+            <text class="type-text">{{selectedPoint.buildingForm}}</text>
+          </view>
+          <view class="point-address">
+            <text class="address-text">{{selectedPoint.county}} {{selectedPoint.town}} {{selectedPoint.village}}</text>
+          </view>
+          <view class="point-stats" wx:if="{{selectedPoint.foundingYear}}">
+            <text class="visit-count">建村年代: {{selectedPoint.foundingYear}}</text>
+          </view>
+        </view>
+        <view class="action-buttons">
+          <button class="btn-primary" bindtap="viewDetail" data-point="{{selectedPoint}}">查看详情</button>
+        </view>
+      </view>
+    </view>
+    
+    <view class="result-list-container" wx:if="{{selectedStreetForm}}">
+      <view class="result-list-header">
+        <text class="result-list-title">{{selectedStreetForm}}街巷形式村落列表</text>
+      </view>
+      <scroll-view class="result-list" scroll-y="true">
+        <view class="result-item" wx:for="{{filteredPoints}}" wx:key="index" bindtap="viewVillageDetail" data-point="{{item}}">
+          <view class="result-item-header">
+            <text class="result-item-name">{{item.village}}</text>
+            <text class="result-item-county">{{item.county}}</text>
+          </view>
+          <view class="result-item-info">
+            <text class="result-item-town">{{item.town}}</text>
+            <text class="result-item-value">{{item.streetForm}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="result-list-footer">
+        <text class="result-count-text">共 {{filteredPoints.length}} 个{{selectedStreetForm}}街巷形式村落</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 建筑布局形式查询 -->
+  <view class="query-content" wx:if="{{queryType === 'layout-form'}}">
+    <view class="query-selector">
+      <picker mode="selector" range="{{layoutFormList}}" bindchange="onLayoutFormChange">
+        <view class="type-picker">
+          <text class="picker-label">选择建筑布局形式：</text>
+          <text class="picker-value">{{selectedLayoutForm || '请选择'}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+    
+    
+    <view class="result-count" wx:if="{{selectedLayoutForm}}">
+      <text class="count-text">共查询到 {{filteredPoints.length}} 个结果</text>
+    </view>
+    
+    <view class="result-map-container" wx:if="{{selectedLayoutForm}}">
+      <map
+        id="layout-form-result-map"
+        class="result-map"
+        longitude="{{longitude}}"
+        latitude="{{latitude}}"
+        scale="{{scale}}"
+        markers="{{layoutFormMarkers}}"
+        bindmarkertap="onMarkerTap"
+        bindtap="onMapTap">
+      </map>
+      
+      <!-- 地点信息面板 -->
+      <view class="info-panel" wx:if="{{selectedPoint}}">
+        <view class="panel-header">
+          <text class="panel-title">地点信息</text>
+          <view class="close-btn" bindtap="closeInfoPanel">
+            <text class="close-icon">×</text>
+          </view>
+        </view>
+        
+        <view class="point-info">
+          <view class="point-header">
+            <text class="point-name">{{selectedPoint.village}}</text>
+            <view class="point-rating" wx:if="{{selectedPoint.rating}}">
+              <text class="rating-score">{{selectedPoint.rating}}</text>
+              <text class="rating-star">⭐</text>
+            </view>
+          </view>
+          <view class="point-type" wx:if="{{selectedPoint.buildingForm}}">
+            <text class="type-text">{{selectedPoint.buildingForm}}</text>
+          </view>
+          <view class="point-address">
+            <text class="address-text">{{selectedPoint.county}} {{selectedPoint.town}} {{selectedPoint.village}}</text>
+          </view>
+          <view class="point-stats" wx:if="{{selectedPoint.foundingYear}}">
+            <text class="visit-count">建村年代: {{selectedPoint.foundingYear}}</text>
+          </view>
+        </view>
+        <view class="action-buttons">
+          <button class="btn-primary" bindtap="viewDetail" data-point="{{selectedPoint}}">查看详情</button>
+        </view>
+      </view>
+    </view>
+    
+    <view class="result-list-container" wx:if="{{selectedLayoutForm}}">
+      <view class="result-list-header">
+        <text class="result-list-title">{{selectedLayoutForm}}建筑布局村落列表</text>
+      </view>
+      <scroll-view class="result-list" scroll-y="true">
+        <view class="result-item" wx:for="{{filteredPoints}}" wx:key="index" bindtap="viewVillageDetail" data-point="{{item}}">
+          <view class="result-item-header">
+            <text class="result-item-name">{{item.village}}</text>
+            <text class="result-item-county">{{item.county}}</text>
+          </view>
+          <view class="result-item-info">
+            <text class="result-item-town">{{item.town}}</text>
+            <text class="result-item-value">{{item.layoutForm}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="result-list-footer">
+        <text class="result-count-text">共 {{filteredPoints.length}} 个{{selectedLayoutForm}}建筑布局村落</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 主要建筑形式查询 -->
+  <view class="query-content" wx:if="{{queryType === 'building-form'}}">
+    <view class="query-selector">
+      <picker mode="selector" range="{{buildingFormList}}" bindchange="onBuildingFormChange">
+        <view class="type-picker">
+          <text class="picker-label">选择主要建筑形式：</text>
+          <text class="picker-value">{{selectedBuildingForm || '请选择'}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+    
+    
+    <view class="result-count" wx:if="{{selectedBuildingForm}}">
+      <text class="count-text">共查询到 {{filteredPoints.length}} 个结果</text>
+    </view>
+    
+    <view class="result-map-container" wx:if="{{selectedBuildingForm}}">
+      <map
+        id="building-form-result-map"
+        class="result-map"
+        longitude="{{longitude}}"
+        latitude="{{latitude}}"
+        scale="{{scale}}"
+        markers="{{buildingFormMarkers}}"
+        bindmarkertap="onMarkerTap"
+        bindtap="onMapTap">
+      </map>
+      
+      <!-- 地点信息面板 -->
+      <view class="info-panel" wx:if="{{selectedPoint}}">
+        <view class="panel-header">
+          <text class="panel-title">地点信息</text>
+          <view class="close-btn" bindtap="closeInfoPanel">
+            <text class="close-icon">×</text>
+          </view>
+        </view>
+        
+        <view class="point-info">
+          <view class="point-header">
+            <text class="point-name">{{selectedPoint.village}}</text>
+            <view class="point-rating" wx:if="{{selectedPoint.rating}}">
+              <text class="rating-score">{{selectedPoint.rating}}</text>
+              <text class="rating-star">⭐</text>
+            </view>
+          </view>
+          <view class="point-type" wx:if="{{selectedPoint.buildingForm}}">
+            <text class="type-text">{{selectedPoint.buildingForm}}</text>
+          </view>
+          <view class="point-address">
+            <text class="address-text">{{selectedPoint.county}} {{selectedPoint.town}} {{selectedPoint.village}}</text>
+          </view>
+          <view class="point-stats" wx:if="{{selectedPoint.foundingYear}}">
+            <text class="visit-count">建村年代: {{selectedPoint.foundingYear}}</text>
+          </view>
+        </view>
+        <view class="action-buttons">
+          <button class="btn-primary" bindtap="viewDetail" data-point="{{selectedPoint}}">查看详情</button>
+        </view>
+      </view>
+    </view>
+    
+    <view class="result-list-container" wx:if="{{selectedBuildingForm}}">
+      <view class="result-list-header">
+        <text class="result-list-title">{{selectedBuildingForm}}建筑形式村落列表</text>
+      </view>
+      <scroll-view class="result-list" scroll-y="true">
+        <view class="result-item" wx:for="{{filteredPoints}}" wx:key="index" bindtap="viewVillageDetail" data-point="{{item}}">
+          <view class="result-item-header">
+            <text class="result-item-name">{{item.village}}</text>
+            <text class="result-item-county">{{item.county}}</text>
+          </view>
+          <view class="result-item-info">
+            <text class="result-item-town">{{item.town}}</text>
+            <text class="result-item-value">{{item.buildingForm}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="result-list-footer">
+        <text class="result-count-text">共 {{filteredPoints.length}} 个{{selectedBuildingForm}}建筑形式村落</text>
+      </view>
+    </view>
+  </view>
+</view>

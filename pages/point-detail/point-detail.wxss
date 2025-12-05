@@ -1,0 +1,276 @@
+/* pages/point-detail/point-detail.wxss */
+/* 地点详情页面的样式文件 */
+
+/* 详情页面容器样式 */
+.detail-container {
+  background-color: #f5f5f5;  /* 浅灰色背景 */
+  min-height: 100vh;          /* 最小高度占满视口 */
+}
+
+/* 图片轮播区域样式 */
+.image-section {
+  position: relative;          /* 相对定位，为内部绝对定位元素提供参考 */
+  height: 500rpx;             /* 固定高度 */
+  overflow: hidden;            /* 隐藏超出部分 */
+}
+
+/* 图片轮播组件样式 */
+.image-swiper {
+  width: 100%;                /* 宽度占满容器 */
+  height: 100%;               /* 高度占满容器 */
+}
+
+/* 详情页面图片样式 */
+.detail-image {
+  width: 100%;                /* 宽度占满容器 */
+  height: 100%;               /* 高度占满容器 */
+}
+
+/* 图片覆盖层样式 - 包含返回按钮 */
+.image-overlay {
+  position: absolute;          /* 绝对定位，覆盖在图片上 */
+  top: 0;                     /* 顶部对齐 */
+  left: 0;                    /* 左侧对齐 */
+  right: 0;                   /* 右侧对齐 */
+  display: flex;              /* 弹性布局 */
+  justify-content: flex-start; /* 左对齐 */
+  padding: 40rpx;             /* 内边距 */
+}
+
+/* 返回按钮样式 */
+.back-btn {
+  width: 80rpx;               /* 按钮宽度 */
+  height: 80rpx;              /* 按钮高度 */
+  background-color: rgba(0, 0, 0, 0.5); /* 半透明黑色背景 */
+  border-radius: 50%;         /* 圆形按钮 */
+  display: flex;              /* 弹性布局 */
+  align-items: center;        /* 垂直居中 */
+  justify-content: center;    /* 水平居中 */
+}
+
+/* 返回图标样式 */
+.back-icon {
+  font-size: 40rpx;          /* 图标字体大小 */
+  color: white;               /* 白色图标 */
+}
+
+/* 地点基本信息区域样式 */
+.info-section {
+  background-color: white;    /* 白色背景 */
+  padding: 40rpx;             /* 内边距 */
+  margin-bottom: 20rpx;       /* 底部外边距 */
+}
+
+/* 地点标题区域样式 */
+.point-header {
+  margin-bottom: 30rpx;       /* 底部外边距 */
+}
+
+/* 地点名称和评分行样式 */
+.title-row {
+  display: flex;              /* 弹性布局 */
+  justify-content: space-between; /* 两端对齐 */
+  align-items: center;        /* 垂直居中对齐 */
+  margin-bottom: 20rpx;       /* 底部外边距 */
+}
+
+/* 地点名称样式 */
+.point-title {
+  font-size: 48rpx;          /* 字体大小 */
+  font-weight: bold;          /* 粗体字 */
+  color: #333;                /* 深灰色文字 */
+}
+
+/* 评分徽章样式 */
+.rating-badge {
+  display: flex;              /* 弹性布局 */
+  align-items: center;        /* 垂直居中对齐 */
+  gap: 10rpx;                 /* 元素间距 */
+}
+
+/* 评分数字样式 */
+.rating-score {
+  font-size: 32rpx;          /* 字体大小 */
+  font-weight: bold;          /* 粗体字 */
+  color: #FF6B35;             /* 橙色文字 */
+}
+
+/* 评分星星图标样式 */
+.rating-star {
+  font-size: 28rpx;          /* 图标字体大小 */
+}
+
+/* 地点类型标签样式 */
+.type-badge {
+  margin-bottom: 20rpx;       /* 底部外边距 */
+}
+
+/* 地点类型文字样式 */
+.type-text {
+  font-size: 28rpx;          /* 字体大小 */
+  color: #2E8B57;             /* 深绿色文字 */
+  background-color: #E8F5E8;  /* 浅绿色背景 */
+  padding: 10rpx 20rpx;      /* 内边距 */
+  border-radius: 20rpx;       /* 圆角边框 */
+}
+
+/* 地址行样式 */
+.address-row {
+  display: flex;              /* 弹性布局 */
+  align-items: center;        /* 垂直居中对齐 */
+  gap: 20rpx;                 /* 元素间距 */
+  margin-bottom: 30rpx;       /* 底部外边距 */
+}
+
+/* 地址图标样式 */
+.address-icon {
+  font-size: 32rpx;          /* 图标字体大小 */
+}
+
+/* 地址文字样式 */
+.address-text {
+  flex: 1;                    /* 弹性增长，占满剩余空间 */
+  font-size: 30rpx;          /* 字体大小 */
+  color: #666;                /* 中灰色文字 */
+  line-height: 1.4;           /* 行高 */
+}
+
+/* 地点描述区域样式 */
+.description {
+  margin-bottom: 30rpx;       /* 底部外边距 */
+}
+
+/* 描述文字样式 */
+.description-text {
+  font-size: 30rpx;          /* 字体大小 */
+  color: #333;                /* 深灰色文字 */
+  line-height: 1.6;           /* 行高 */
+}
+
+/* 传统村落详细信息样式 */
+.village-details {
+  margin-top: 30rpx;
+  padding: 20rpx;
+  background-color: #f8f9fa;
+  border-radius: 12rpx;
+}
+
+.detail-row {
+  display: flex;
+  margin-bottom: 15rpx;
+  align-items: flex-start;
+}
+
+.detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.detail-label {
+  font-size: 26rpx;
+  color: #666;
+  min-width: 140rpx;
+  flex-shrink: 0;
+}
+
+.detail-value {
+  font-size: 26rpx;
+  color: #333;
+  flex: 1;
+  line-height: 1.4;
+}
+
+/* 详细信息网格区域样式 */
+.details-section {
+  background-color: white;    /* 白色背景 */
+  padding: 40rpx;             /* 内边距 */
+  margin-bottom: 20rpx;       /* 底部外边距 */
+}
+
+/* 详细信息网格布局 */
+.detail-grid {
+  display: grid;              /* 网格布局 */
+  grid-template-columns: 1fr 1fr 1fr; /* 三列等宽 */
+  gap: 30rpx;                 /* 网格间距 */
+}
+
+/* 详细信息项样式 */
+.detail-item {
+  text-align: center;         /* 文字居中对齐 */
+}
+
+/* 详细信息标签样式 */
+.detail-label {
+  display: block;             /* 块级显示 */
+  font-size: 24rpx;          /* 字体大小 */
+  color: #999;                /* 浅灰色文字 */
+  margin-bottom: 10rpx;       /* 底部外边距 */
+}
+
+/* 详细信息值样式 */
+.detail-value {
+  display: block;             /* 块级显示 */
+  font-size: 28rpx;          /* 字体大小 */
+  color: #333;                /* 深灰色文字 */
+  font-weight: bold;          /* 粗体字 */
+}
+
+/* 标签区域样式 */
+.tags-section {
+  background-color: white;    /* 白色背景 */
+  padding: 40rpx;             /* 内边距 */
+  margin-bottom: 20rpx;       /* 底部外边距 */
+}
+
+/* 标签区域标题样式 */
+.tags-title {
+  font-size: 32rpx;          /* 字体大小 */
+  font-weight: bold;          /* 粗体字 */
+  color: #333;                /* 深灰色文字 */
+  margin-bottom: 30rpx;       /* 底部外边距 */
+}
+
+/* 标签列表样式 */
+.tags-list {
+  display: flex;              /* 弹性布局 */
+  flex-wrap: wrap;            /* 允许换行 */
+  gap: 20rpx;                 /* 标签间距 */
+}
+
+/* 单个标签项样式 */
+.tag-item {
+  background-color: #f0f0f0; /* 浅灰色背景 */
+  padding: 15rpx 25rpx;      /* 内边距 */
+  border-radius: 25rpx;       /* 圆角边框 */
+}
+
+/* 标签文字样式 */
+.tag-text {
+  font-size: 26rpx;          /* 字体大小 */
+  color: #666;                /* 中灰色文字 */
+}
+
+/* 图片开关区域样式 */
+.image-toggle-section {
+  background-color: white;    /* 白色背景 */
+  padding: 40rpx;             /* 内边距 */
+  margin-bottom: 20rpx;       /* 底部外边距 */
+}
+
+/* 开关头部样式 */
+.toggle-header {
+  display: flex;              /* 弹性布局 */
+  justify-content: space-between; /* 两端对齐 */
+  align-items: center;        /* 垂直居中对齐 */
+}
+
+/* 开关标题样式 */
+.toggle-title {
+  font-size: 32rpx;          /* 字体大小 */
+  font-weight: bold;          /* 粗体字 */
+  color: #333;                /* 深灰色文字 */
+}
+
+/* 图片开关组件样式 */
+.image-toggle {
+  transform: scale(0.8);      /* 缩小开关尺寸到80% */
+}
